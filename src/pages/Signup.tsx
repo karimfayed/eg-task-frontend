@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSignupMutation } from '../services/authApi';
+import { getErrorMessage } from '../utils/errorUtils';
+import { ErrorMessages } from '../enums/errorMessages';
+import { Path } from '../enums/paths';
+import { SignupFormData } from '../types/formdata.types';
+import { validateSignupForm } from '../utils/formValidators';
 
 function Signup() {
   const navigate = useNavigate();
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignupFormData>({
     name: '',
     email: '',
     password: '',
@@ -13,7 +18,6 @@ function Signup() {
   
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
-  // Use the signup mutation hook from RTK Query
   const [signup, { isLoading, error: signupError }] = useSignupMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,72 +28,23 @@ function Signup() {
     });
   };
 
-  const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    } else if (formData.name.trim().length < 3) {
-      newErrors.name = 'Name must be at least 3 characters';
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    } else if (!/[A-Za-z]/.test(formData.password)) {
-      newErrors.password = 'Password must contain at least one letter';
-    } else if (!/[0-9]/.test(formData.password)) {
-      newErrors.password = 'Password must contain at least one number';
-    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
-      newErrors.password = 'Password must contain at least one special character';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (validateSignupForm(formData, setErrors)) {
       try {
-        // Call the signup endpoint
-        const result = await signup({
+        await signup({
           name: formData.name,
           email: formData.email,
           password: formData.password,
         }).unwrap();
-        console.log(result)
         
-        // If successful, navigate to the app
-        navigate('/login');
+        navigate(Path.LOGIN);
       } catch (err) {
-        // Handle API errors
         console.error('Failed to sign up:', err);
       }
     }
-  };
-
-  const getErrorMessage = (error: unknown): string => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    console.log("ERROR:", typeof (error as any).data?.body.message)
-    if (
-      error &&
-      typeof error === 'object' &&
-      'data' in error &&
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      typeof (error as any).data?.body.message === 'string'
-    ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (error as any).data?.body.message;
-    }
-    return 'Signup failed. Please try again.';
   };
 
   return (
@@ -99,7 +54,7 @@ function Signup() {
         {errors.form && <p className="error form-error">{errors.form}</p>}
         {signupError && (
           <p className="error form-error">
-            {getErrorMessage(signupError)}
+            {getErrorMessage(signupError, ErrorMessages.DEFAULT_SIGNUP)}
           </p>
         )}
         
@@ -145,7 +100,7 @@ function Signup() {
       </form>
       
       <p>
-        Already have an account? <Link to="/login">Log in</Link>
+        Already have an account? <Link to={Path.LOGIN}>Log in</Link>
       </p>
     </div>
   );

@@ -1,30 +1,28 @@
-// src/pages/Application.tsx
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { logout } from '../store/authSlice';
 import { useEffect } from 'react';
 import logo from '../assets/react.svg'
+import { Path } from '../enums/paths';
 
 function Application() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { /*user,*/ isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   
-  // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate(Path.LOGIN);
     }
   }, [isAuthenticated, navigate]);
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/login');
+    navigate(Path.LOGIN);
   };
 
-  // If not authenticated yet, don't render the page
-  if (!isAuthenticated /*|| !user*/) {
+  if (!isAuthenticated) {
     return null;
   }
 

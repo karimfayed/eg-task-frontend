@@ -1,19 +1,22 @@
-// src/pages/Login.tsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLoginMutation } from '../services/authApi';
+import { getErrorMessage } from '../utils/errorUtils';
+import { ErrorMessages } from '../enums/errorMessages';
+import { Path } from '../enums/paths';
+import { LoginFormData } from '../types/formdata.types';
+import { validateLoginForm } from '../utils/formValidators';
 
 function Login() {
   const navigate = useNavigate();
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: ''
   });
   
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
-  // Use the login mutation hook from RTK Query
   const [login, { isLoading, error: loginError }] = useLoginMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,56 +27,22 @@ function Login() {
     });
   };
 
-  const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (validateLoginForm(formData, setErrors)) {
       try {
-        // Call the login endpoint
-        const result = await login({
+        await login({
           email: formData.email,
           password: formData.password,
         }).unwrap();
-        console.log("res:", result);
         
-        
-        // If successful, navigate to the app
-        navigate('/app');
+        navigate(Path.APP);
       } catch (err) {
-        // Handle API errors
         console.error('Failed to log in:', err);
       }
     }
-  };
-
-  const getErrorMessage = (error: unknown): string => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    console.log("ERROR:", typeof (error as any).data?.body.message)
-    if (
-      error &&
-      typeof error === 'object' &&
-      'data' in error &&
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      typeof (error as any).data?.body.message === 'string'
-    ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (error as any).data?.body.message;
-    }
-    return 'Login failed. Please try again.';
   };
 
   return (
@@ -83,7 +52,7 @@ function Login() {
         {errors.form && <p className="error form-error">{errors.form}</p>}
         {loginError && (
           <p className="error form-error">
-            {getErrorMessage(loginError)}
+            {getErrorMessage(loginError, ErrorMessages.DEFAULT_LOGIN )}
           </p>
         )}
         
@@ -117,7 +86,7 @@ function Login() {
       </form>
       
       <p>
-        Don't have an account? <Link to="/signup">Sign up</Link>
+        Don't have an account? <Link to={Path.SIGNUP}>Sign up</Link>
       </p>
     </div>
   );

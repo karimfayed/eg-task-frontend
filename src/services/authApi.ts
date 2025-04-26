@@ -1,45 +1,28 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { LoginDto, SignupDto } from '../types/requests.types';
+import { AuthResponse } from '../types/auth.types';
 
-interface SignupRequest {
-  name: string;
-  email: string;
-  password: string;
-}
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/';
 
-interface LoginRequest {
-  email: string;
-  password: string;
-}
 
-interface AuthResponse {
-  statusCode: number;
-  body: {
-    message: string;
-    result: {
-      accessToken: string;
-      refreshToken: string;
-    };
-  };
-}
 
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: 'http://localhost:3000/',
+    baseUrl: BASE_URL,
     prepareHeaders: (headers) => {
-      // You can add any common headers here
       return headers;
     },
   }),
   endpoints: (builder) => ({
-    signup: builder.mutation<AuthResponse, SignupRequest>({
+    signup: builder.mutation<AuthResponse, SignupDto>({
       query: (credentials) => ({
         url: 'auth/signup',
         method: 'POST',
         body: credentials,
       }),
     }),
-    login: builder.mutation<AuthResponse, LoginRequest>({
+    login: builder.mutation<AuthResponse, LoginDto>({
       query: (credentials) => ({
         url: 'auth/login',
         method: 'POST',

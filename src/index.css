@@ -1,4 +1,3 @@
-/* src/index.css */
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -16,7 +15,6 @@ body {
   width: 100%;
 }
 
-/* Form styling */
 .signup-container, .login-container {
   max-width: 400px;
   margin: 40px auto;
@@ -56,17 +54,12 @@ button {
   margin-top: 10px;
 }
 
-button:hover {
-  background-color: #3367d6;
-}
-
 .error {
   color: red;
   font-size: 14px;
   margin-top: 5px;
 }
 
-/* Application page styling */
 .application-container {
   width: 100%;
   min-height: 100vh;
@@ -100,20 +93,6 @@ button:hover {
   margin: 0 auto;
 }
 
-.dashboard-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.stat-card {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
 .app-footer {
   background-color: #f0f0f0;
   padding: 15px;
@@ -121,16 +100,10 @@ button:hover {
   color: #333;
 }
 
-/* Add this to your src/index.css */
 .form-error {
   background-color: rgba(255, 0, 0, 0.1);
   padding: 10px;
   border-radius: 4px;
   margin-bottom: 15px;
   text-align: center;
-}
-
-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
 }

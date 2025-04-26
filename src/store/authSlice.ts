@@ -1,12 +1,9 @@
-// src/store/authSlice.ts
 import { createSlice } from '@reduxjs/toolkit';
 import { authApi } from '../services/authApi';
+import { AuthState } from '../types/auth.types';
 
-interface AuthState {
-  accessToken: string | null;
-  refreshToken: string | null;
-  isAuthenticated: boolean;
-}
+const accessTokenKey = "accessToken"
+const RefreshTokenKey = "refreshToken"
 
 const initialState: AuthState = {
   accessToken: null,
@@ -15,8 +12,8 @@ const initialState: AuthState = {
 };
 
 try {
-  const storedAccessToken = localStorage.getItem('accessToken');
-  const storedRefreshToken = localStorage.getItem('refreshToken');
+  const storedAccessToken = localStorage.getItem(accessTokenKey);
+  const storedRefreshToken = localStorage.getItem(RefreshTokenKey);
   
   if (storedAccessToken && storedRefreshToken) {
     initialState.accessToken = storedAccessToken;
@@ -35,8 +32,8 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      localStorage.removeItem(accessTokenKey);
+      localStorage.removeItem(RefreshTokenKey);
     },
   },
   extraReducers: (builder) => {
@@ -44,12 +41,11 @@ const authSlice = createSlice({
       .addMatcher(
         authApi.endpoints.login.matchFulfilled,
         (state, { payload }) => {
-          console.log("payload:", payload)
           state.accessToken = payload.body.result.accessToken;
           state.refreshToken = payload.body.result.refreshToken;
           state.isAuthenticated = true;
-          localStorage.setItem('accessToken', payload.body.result.accessToken);
-          localStorage.setItem('refreshToken', payload.body.result.refreshToken);
+          localStorage.setItem(accessTokenKey, payload.body.result.accessToken);
+          localStorage.setItem(RefreshTokenKey, payload.body.result.refreshToken);
         }
       )
   },
